@@ -45,15 +45,16 @@ def set_language(update, context):
     try:
         lang = context.args[0]
     except:
-        update.message.reply_text('Usage: /language <language_aggr>')
+        lang = language[str(update.effective_chat.id)]
+        update.message.send_message(chat_id=updater.effective_chat.id, text=f'The current language is {lang}\nTo set language, use /language <language_abbr>')
         return
     try:
         requests.get(f"https://{lang}.wikipedia.org")
     except requests.exceptions.ConnectionError:
-        update.message.reply_text('Language seems not exists')
+        update.message.send_message(chat_id=updater.effective_chat.id, text='Language seems not exists')
         return
     update_language(update.effective_chat.id, lang)
-    update.message.reply_text(f'Language saved: {lang}')
+    update.message.send_message(chat_id=updater.effective_chat.id, text=f'Language saved: {lang}')
 
 language_handler = CommandHandler('language', set_language, pass_args=True)
 dispatcher.add_handler(language_handler)
@@ -64,7 +65,7 @@ def get_random_page(update, context):
     except:
         lang = DEFAULT_LANG
     r=requests.get(url.format(lang=lang))
-    update.message.reply_text(r.url)
+    update.message.send_message(chat_id=updater.effective_chat.id, text=r.url)
     
 get_random_page_handler = CommandHandler('random', get_random_page)
 dispatcher.add_handler(get_random_page_handler)
