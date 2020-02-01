@@ -67,7 +67,7 @@ def get_random_page(update, context):
         lang = DEFAULT_LANG
     r=requests.get(url.format(lang=lang))
     context.bot.send_message(chat_id=update.effective_chat.id, text=r.url)
-    
+
 get_random_page_handler = CommandHandler('random', get_random_page)
 dispatcher.add_handler(get_random_page_handler)
 
@@ -77,10 +77,20 @@ def get_wiki_page(update, context):
     except:
         lang = DEFAULT_LANG
     if len(context.args) < 1:
-        context.bot.send_message(chat_id=update.effective_chat.id, text='Usage: /wiki <name>\n Remember to pre-check the language option.')
+        context.bot.send_message(chat_id=update.effective_chat.id, text='Usage: /wiki [@<langugage>] <name>\n Remember to pre-check the language option.')
         return
-    keyword = " ".join(context.args)
-    wiki = wikipediaapi.Wikipedia(lang)
+    if len(context.args) > 1 and context.args[0].startswith("@") and len(context.args[0]) == 3:
+        # We get a language code at the beginning
+        local_lang = context.args[0][1:]
+        if len(context.args[1:]) == 0:
+            context.bot.send_message(chat_id=update.effective_chat.id,
+                                     text='Usage: /wiki [@<langugage>] <name>\n Remember to pre-check the language option.')
+            return
+        keyword = " ".join(context.args[1:])
+    else:
+        local_lang = lang
+        keyword = " ".join(context.args)
+    wiki = wikipediaapi.Wikipedia(local_lang)
     page = wiki.page(keyword)
     if page.exists():
         context.bot.send_message(chat_id=update.effective_chat.id, text=page.fullurl)
