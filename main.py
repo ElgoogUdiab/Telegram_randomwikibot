@@ -3,6 +3,7 @@ import json
 from telegram.ext import CommandHandler
 import logging
 import requests
+import wikipediaapi
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -69,6 +70,25 @@ def get_random_page(update, context):
     
 get_random_page_handler = CommandHandler('random', get_random_page)
 dispatcher.add_handler(get_random_page_handler)
+
+def get_wiki_page(update, context):
+    try:
+        lang = language[str(update.effective_chat.id)]
+    except:
+        lang = DEFAULT_LANG
+    if len(context.args) < 1:
+        context.bot.send_message(chat_id=update.effective_chat.id, text='Usage: /wiki <name>\n Remember to pre-check the language option.')
+        return
+    keyword = " ".join(context.args)
+    wiki = wikipediaapi.Wikipedia(lang)
+    page = wiki.page(keyword)
+    if page.exists():
+        context.bot.send_message(chat_id=update.effective_chat.id, text=page.fullurl)
+    else:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="The page seems missing.")
+get_wiki_handler = CommandHandler('wiki', get_wiki_page, pass_args=True)
+dispatcher.add_handler(get_wiki_handler)
+
 
 def error(update, context):
     """Log Errors caused by Updates."""
