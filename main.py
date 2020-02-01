@@ -79,7 +79,7 @@ def get_wiki_page(update, context):
     if len(context.args) < 1:
         context.bot.send_message(chat_id=update.effective_chat.id, text='Usage: /wiki [@<langugage>] <name>\n Remember to pre-check the language option.')
         return
-    if len(context.args) > 1 and context.args[0].startswith("@") and len(context.args[0]) == 3:
+    if len(context.args) > 1 and context.args[0].startswith("@"):
         # We get a language code at the beginning
         local_lang = context.args[0][1:]
         try:
