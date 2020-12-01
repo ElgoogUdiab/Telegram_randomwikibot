@@ -4,6 +4,7 @@ from telegram.ext import CommandHandler
 import logging
 import requests
 import wikipediaapi
+import re
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -60,13 +61,18 @@ def set_language(update, context):
 language_handler = CommandHandler('language', set_language, pass_args=True)
 dispatcher.add_handler(language_handler)
 
+def get_random_page_url(original_url):
+    r=requests.get(original_url, allow_redirects=False)
+    if re.match(r"https://.+?\.wikipedia\.org/wiki/Special:", r.headers["Location"]):
+        return get_random_page_url(r.headers["Location"])
+    return r.headers["Location"]
+
 def get_random_page(update, context):
     try:
         lang = language[str(update.effective_chat.id)]
     except:
         lang = DEFAULT_LANG
-    r=requests.get(url.format(lang=lang), allow_redirects=False)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=r.headers["Location"])
+    context.bot.send_message(chat_id=update.effective_chat.id, text=get_random_page_url(url.format(lang=lang)))
 
 get_random_page_handler = CommandHandler('random', get_random_page)
 dispatcher.add_handler(get_random_page_handler)
