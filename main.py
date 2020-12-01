@@ -65,8 +65,8 @@ def get_random_page(update, context):
         lang = language[str(update.effective_chat.id)]
     except:
         lang = DEFAULT_LANG
-    r=requests.get(url.format(lang=lang))
-    context.bot.send_message(chat_id=update.effective_chat.id, text=r.url)
+    r=requests.get(url.format(lang=lang), allow_redirects=False)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=r.headers["Location"])
 
 get_random_page_handler = CommandHandler('random', get_random_page)
 dispatcher.add_handler(get_random_page_handler)
